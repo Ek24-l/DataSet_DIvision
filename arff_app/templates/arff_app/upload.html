@@ -71,8 +71,8 @@
     </div>
 
     <script>
-        const classLabels = ('{{ class_labels_json|safe }}');
-        const classValues = ('{{ class_values_json|safe }}');
+        const classLabels = JSON.parse('{{ class_labels_json|escapejs }}');
+        const classValues = JSON.parse('{{ class_values_json|escapejs }}');
 
         const ctx = document.getElementById('classChart').getContext('2d');
         new Chart(ctx, {

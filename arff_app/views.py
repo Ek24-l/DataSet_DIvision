@@ -15,10 +15,11 @@ def upload_arff(request):
 
     if request.method == 'POST' and form.is_valid():
         try:
-            arff_file = form.save()
+            # Guardar archivo sin usar form.save() si tu Form no tiene modelo
+            uploaded_file = request.FILES['file']
 
             # Leer archivo ARFF
-            data = arff.load(open(arff_file.file.path))
+            data = arff.load(uploaded_file)
             df = pd.DataFrame(data['data'], columns=[attr[0] for attr in data['attributes']])
 
             total_datos = len(df)
@@ -52,10 +53,7 @@ def upload_arff(request):
             )
 
             # Separar train / val
-            if stratify_train is None:
-                stratify_val = None
-            else:
-                stratify_val = y_train_val
+            stratify_val = y_train_val if stratify_train is not None else None
 
             X_train, X_val, y_train, y_val = train_test_split(
                 X_train_val, y_train_val, test_size=0.3, random_state=42, stratify=stratify_val
@@ -64,6 +62,7 @@ def upload_arff(request):
             if warning_stratify:
                 context['warning'] = (context.get('warning', '') + ' ' + warning_stratify).strip()
 
+            # Contar ejemplos
             count_train = len(X_train)
             count_val = len(X_val)
             count_test = len(X_test)
@@ -72,15 +71,11 @@ def upload_arff(request):
             clf = DecisionTreeClassifier()
             clf.fit(X_train, y_train)
 
-            # Validación
-            y_pred_val = clf.predict(X_val)
-            acc_val = accuracy_score(y_val, y_pred_val)
+            # Validación y test
+            acc_val = accuracy_score(y_val, clf.predict(X_val))
+            acc_test = accuracy_score(y_test, clf.predict(X_test))
 
-            # Prueba
-            y_pred_test = clf.predict(X_test)
-            acc_test = accuracy_score(y_test, y_pred_test)
-
-            # Tabla completa
+            # Tabla HTML
             table_html = df.to_html(classes="table table-striped", index=False)
 
             # Conteo de clases
@@ -103,7 +98,8 @@ def upload_arff(request):
             context['form'] = form
             context['error'] = f"Error procesando el archivo ARFF: {str(e)}"
             context['traceback'] = traceback.format_exc()
-            return render(request, 'arff_app/upload.html', context)
 
-    context['form'] = form
+    else:
+        context['form'] = form
+
     return render(request, 'arff_app/upload.html', context)
