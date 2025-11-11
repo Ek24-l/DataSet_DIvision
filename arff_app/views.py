@@ -1,9 +1,6 @@
 # arff_app/views.py
 from django.shortcuts import render
 from .forms import ARFFUploadForm
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
 import arff
 import pandas as pd
 import json
