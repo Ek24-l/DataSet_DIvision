@@ -1,108 +1,34 @@
 from django.shortcuts import render
+from django.http import HttpResponse
 from .forms import ARFFUploadForm
-from sklearn.model_selection import train_test_split
-from sklearn.tree import DecisionTreeClassifier
-from sklearn.metrics import accuracy_score
 import arff
-import pandas as pd
-import json
-import traceback
+import io
 
 def upload_arff(request):
-    context = {}
-    
-    if request.method == 'POST':
+    if request.method == "POST":
         form = ARFFUploadForm(request.POST, request.FILES)
-
         if form.is_valid():
+            uploaded_file = request.FILES['file']
+
             try:
-                # Archivo subido en memoria
-                uploaded_file = request.FILES['file']
+                # Leer el contenido binario
+                raw_data = uploaded_file.read()
 
-                # Leer ARFF correctamente (en bytes)
-                data = arff.load(uploaded_file)
+                # Convertir a texto
+                text_data = raw_data.decode("utf-8")
 
-                df = pd.DataFrame(data['data'], columns=[attr[0] for attr in data['attributes']])
+                # Crear un buffer de texto
+                fp = io.StringIO(text_data)
 
-                total_datos = len(df)
+                # Cargar el ARFF desde un archivo en texto
+                data = arff.load(fp)
 
-                # Separar features y target
-                X = df.iloc[:, :-1]
-                y = df.iloc[:, -1]
-
-                # Filtrar clases con menos de 2 muestras
-                counts = y.value_counts()
-                valid_classes = counts[counts >= 2].index
-                removed_classes = counts[counts < 2].index
-
-                if len(removed_classes) > 0:
-                    df = df[df.iloc[:, -1].isin(valid_classes)]
-                    X = df.iloc[:, :-1]
-                    y = df.iloc[:, -1]
-                    context["warning"] = f"Se eliminaron clases con menos de 2 muestras: {list(removed_classes)}"
-
-                min_class_count = y.value_counts().min()
-
-                if min_class_count < 3:
-                    stratify_train = None
-                    warning_stratify = "Dataset pequeño o desbalanceado: división sin estratificación."
-                else:
-                    stratify_train = y
-                    warning_stratify = None
-
-                # Train + Test
-                X_train_val, X_test, y_train_val, y_test = train_test_split(
-                    X, y, test_size=0.3, random_state=42, stratify=stratify_train
-                )
-
-                stratify_val = y_train_val if stratify_train is not None else None
-
-                # Train + Validation
-                X_train, X_val, y_train, y_val = train_test_split(
-                    X_train_val, y_train_val, test_size=0.3, random_state=42, stratify=stratify_val
-                )
-
-                if warning_stratify:
-                    context["warning"] = (context.get("warning", "") + " " + warning_stratify).strip()
-
-                # Conteos
-                count_train = len(X_train)
-                count_val = len(X_val)
-                count_test = len(X_test)
-
-                # Modelo
-                clf = DecisionTreeClassifier()
-                clf.fit(X_train, y_train)
-
-                acc_val = accuracy_score(y_val, clf.predict(X_val))
-                acc_test = accuracy_score(y_test, clf.predict(X_test))
-
-                table_html = df.to_html(classes="table table-striped", index=False)
-
-                class_counts = df.iloc[:, -1].value_counts().to_dict()
-
-                context.update({
-                    "form": form,
-                    "total_datos": total_datos,
-                    "count_train": count_train,
-                    "count_val": count_val,
-                    "count_test": count_test,
-                    "acc_val": acc_val,
-                    "acc_test": acc_test,
-                    "table_html": table_html,
-                    "class_labels_json": json.dumps(list(class_counts.keys())),
-                    "class_values_json": json.dumps(list(class_counts.values())),
-                })
+                return HttpResponse("Archivo ARFF procesado correctamente!")
 
             except Exception as e:
-                context["form"] = form
-                context["error"] = f"Error procesando el archivo ARFF: {str(e)}"
-                context["traceback"] = traceback.format_exc()
-        else:
-            context["form"] = form
+                return HttpResponse(f"Error procesando el archivo ARFF: {e}")
 
     else:
         form = ARFFUploadForm()
-        context["form"] = form
 
-    return render(request, "arff_app/upload.html", context)
+    return render(request, "upload.html", {"form": form})
