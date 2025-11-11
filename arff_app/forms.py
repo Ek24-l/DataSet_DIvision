@@ -1,10 +1,7 @@
-# arff_app/forms.py
-from django import forms
+from django.forms import ModelForm
+from .models import ARFFFile
 
-class ARFFUploadForm(forms.Form):
-    file = forms.FileField(
-        label="Archivo ARFF",
-        required=True,
-        widget=forms.ClearableFileInput(attrs={'class': 'form-control'})
-    )
-
+class ARFFUploadForm(ModelForm):
+    class Meta:
+        model = ARFFFile
+        fields = ['file']
