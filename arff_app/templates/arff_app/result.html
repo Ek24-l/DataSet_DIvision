@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados ARFF</title>
+</head>
+<body>
+    <h1>Resultado del archivo ARFF</h1>
+
+    <h2>Relation</h2>
+    <p>{{ relation }}</p>
+
+    <h2>Atributos</h2>
+    <ul>
+        {% for attr in attributes %}
+        <li>{{ attr }}</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Datos</h2>
+    <table border="1" cellpadding="5">
+        {% for row in data %}
+        <tr>
+            {% for value in row %}
+            <td>{{ value }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <a href="/">Subir otro archivo</a>
+</body>
+</html>
+
