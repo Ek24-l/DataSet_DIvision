@@ -5,9 +5,9 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Seguridad
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'tu-secret-key-aqui')
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 DEBUG = False
-ALLOWED_HOSTS = ['tu-app.onrender.com']
+ALLOWED_HOSTS = ['dataset-division.onrender.com']
 
 # Aplicaciones
 INSTALLED_APPS = [
