@@ -1,7 +1,4 @@
-from django.forms import ModelForm
-from .models import ARFFFile
+from django import forms
 
-class ARFFUploadForm(ModelForm):
-    class Meta:
-        model = ARFFFile
-        fields = ['file']
+class ARFFUploadForm(forms.Form):
+    file = forms.FileField()
