@@ -7,17 +7,12 @@ def upload_arff(request):
         form = ARFFUploadForm(request.POST, request.FILES)
         if form.is_valid():
             uploaded_file = request.FILES['file']
-
-            # Guardar temporalmente
-            temp_path = '/tmp/upload.arff'
-
-            with open(temp_path, 'wb') as temp:
-                for chunk in uploaded_file.chunks():
-                    temp.write(chunk)
-
             try:
-                with open(temp_path, 'rb') as f:  # <-- 'rb' !!!
-                    data = arff.load(f)
+                # Leer el archivo como texto
+                text = uploaded_file.read().decode('utf-8', errors='ignore')
+
+                # Cargar el ARFF desde string
+                data = arff.loads(text)
 
                 return render(request, 'arff_app/result.html', {
                     'relation': data['relation'],
@@ -28,7 +23,7 @@ def upload_arff(request):
             except Exception as e:
                 return render(request, 'arff_app/upload.html', {
                     'form': form,
-                    'error': f"Error procesando el archivo ARFF: {str(e)}"
+                    'error': f"Error procesando el archivo ARFF: {e}"
                 })
 
     else:
