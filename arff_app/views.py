@@ -15,10 +15,10 @@ def upload_arff(request):
 
     if request.method == 'POST' and form.is_valid():
         try:
-            # Guardar archivo sin usar form.save() si tu Form no tiene modelo
-            uploaded_file = request.FILES['file']
+            # Obtener archivo validado por el form
+            uploaded_file = form.cleaned_data['file']
 
-            # Leer archivo ARFF
+            # Leer ARFF desde archivo subido
             data = arff.load(uploaded_file)
             df = pd.DataFrame(data['data'], columns=[attr[0] for attr in data['attributes']])
 
