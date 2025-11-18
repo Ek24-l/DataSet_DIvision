@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Resultados ARFF</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 30px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 25px 35px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #4455aa;
+            margin-bottom: 25px;
+        }
+
+        h2 {
+            color: #333;
+            border-left: 4px solid #4455aa;
+            padding-left: 10px;
+            margin-top: 25px;
+        }
+
+        ul {
+            list-style: square;
+            padding-left: 30px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        table th, table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+
+        table tr:nth-child(even) {
+            background: #f0f0f0;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-top: 30px;
+            padding: 10px 15px;
+            background: #4455aa;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+        }
+
+        .back-btn:hover {
+            background: #334488;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <h1>Resultado del archivo ARFF</h1>
+
+        <h2>Relación</h2>
+        <p>{{ relation }}</p>
+
+        <h2>Atributos</h2>
+        <ul>
+            {% for attr in attributes %}
+                <li>{{ attr }}</li>
+            {% endfor %}
+        </ul>
+
+        <h2>Datos</h2>
+        <table>
+            {% for row in data %}
+                <tr>
+                    {% for value in row %}
+                        <td>{{ value }}</td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </table>
+
+        <a href="/" class="back-btn">Subir otro archivo</a>
+
+    </div>
+</body>
+</html>
